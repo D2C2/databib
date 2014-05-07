@@ -1,8 +1,8 @@
 
 <?php
-include_once('database_connection.php');
+/*include_once('database_connection.php');
 
-$sql="select name, username from users where user_role!='admin'";
+$sql="select name, username from users where user_role!='admin' order by name";
 $result = mysql_query($sql);
 ?>
 <br /><br />
@@ -25,7 +25,7 @@ $result = mysql_query($sql);
 <?php
 include_once('database_connection.php');
 
-$sql="select id_rep, rep_title from approved";
+$sql="select id_rep, rep_title from approved order by rep_title";
 $result = mysql_query($sql);
 ?>
 <br /><br />
@@ -49,3 +49,5 @@ $result = mysql_query($sql);
 <input type=submit name="submit" value="Get editors" >
 </form>
 <br />
+/*
+?>

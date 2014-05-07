@@ -1,6 +1,10 @@
 <?php
 include_once('include/database_connection.php');
 
+function xmlentities($string) {
+    return str_replace(array("&", "<", ">", "\"", "'"),
+        array("&amp;", "&lt;", "&gt;", "&quot;", "&apos;"), $string);
+}
 
 $sql = "SELECT * FROM approved ORDER BY creation_date DESC LIMIT 15";
 
@@ -15,9 +19,9 @@ $xml =  "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>
 $xml .= "<atom:link href=\"http://databib.org/displayRssFeeds.php\" rel=\"self\" type=\"application/rss+xml\" />";
 while ($row = mysql_fetch_array($result, MYSQL_ASSOC))
 {
-	$title = "<![CDATA[" .$row['rep_title']. "]]>";
-	$url =  "<![CDATA[" .$row['rep_url']. "]]>";
-	$description = "<![CDATA[" .$row['rep_description']. "]]>"; 
+	$title = xmlentities($row['rep_title']);
+	$url = xmlentities($row['rep_url']);
+	$description = "<![CDATA[" .xmlentities($row['rep_description']). "]]>"; 
 
  $xml .=  "<item><title>$title</title>
        <link>$url</link>

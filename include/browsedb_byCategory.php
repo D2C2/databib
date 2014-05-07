@@ -70,19 +70,33 @@ while( $row = mysql_fetch_array($numresults))
 ksort($broaderSubjectHash);
 foreach ($broaderSubjectHash as $broadersubs => $subjects)
 {
+	if(!empty($broadersubs)) {
+		$id = substr($broadersubs, 0, 3);
+		echo "<b><a id=\"{$id}\" style=\"color:#424242\">".$broadersubs."</a></b><br>";
+		usort($subjects, "sortObj");
+		foreach ($subjects as $subject)
+		{
+			echo "&nbsp&nbsp&nbsp <a href='./repository/$subject->id' style='color:#993300; font-size:14px'>".$subject->title."</a><br>";
+		}
 
-	echo "<b>".$broadersubs."</b><br>";
-	usort($subjects, "sortObj");
-	foreach ($subjects as $subject)
-	{
-		echo "&nbsp&nbsp&nbsp <a href='./viewapprovedbyrecordid.php?record=$subject->id' style='color:#993300; font-size:14px'>".$subject->title."</a><br>";
+		echo "<br><br>";
 	}
-
-	echo "<br><br>";
-
 }
 
+foreach ($broaderSubjectHash as $broadersubs => $subjects)
+{
+	if(empty($broadersubs)) {
+		echo "<b><a id=\"Unc\" style=\"color:#424242\">Unclassified</a></b><br>";
+		usort($subjects, "sortObj");
+		foreach ($subjects as $subject)
+		{
+			echo "&nbsp&nbsp&nbsp <a href='./repository/$subject->id' style='color:#993300; font-size:14px'>".$subject->title."</a><br>";
+		}
 
+		echo "<br><br>";
+		break;
+	}
+}
 
 
 /*

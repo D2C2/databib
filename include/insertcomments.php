@@ -1,5 +1,15 @@
 <?php
 
+require_once("membersite_config.php");
+if(!$fgmembersite->CheckLogin())
+{
+	session_start();
+	$_SESSION["ORIG_LINK"] = $_SERVER['REQUEST_URI'];
+
+    $fgmembersite->RedirectToURL("../login.php");
+    exit;
+}
+
 include_once('database_connection.php');
 
 $username = $_POST['author'];

@@ -5,20 +5,23 @@ $fgmembersite->CheckLogin();
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta http-equiv="Content-Style-Type" content="text/css"/>
-<meta http-equiv="Content-Script-Type" content="text/javascript" />
-<meta name="Keywords" content="Databib data curation bibliography bibliographies Michael Witt Mike Giarlo Purdue Penn State University library science libraries repositories" />
-<meta name="Description" content="Databib is a collaborative, annotated bibliography of primary research data repositories developed with support from the Institute of Museum and Library Services." />
-<meta name="Robots" content="all" />
 
-<link href="http://www.lib.purdue.edu/resources/css/site.css" rel="stylesheet" type="text/css" />
+<meta name="Author" content="Databib" />
+<meta name="keywords" content="Databib, research, data, repository, repositories, registry, directory, research repositories, data repositories" />
+<meta name="Description" content="Databib is a collaborative, annotated bibliography of primary research data repositories developed with support from the Institute of Museum and Library Services." />
+<meta name="robots" content="All" />
+<meta name="revisit-after" content="7 Days" />
+
+<link href="css/site.css" rel="stylesheet" type="text/css" />
 <link href="/css/siteupdates.css" rel="stylesheet" type="text/css" />
-<link href="http://www.lib.purdue.edu/resources/css/print.css" rel="stylesheet" type="text/css" media="print" />
-<link href="http://www.lib.purdue.edu/resources/css/print.css" rel="stylesheet" type="text/css" media="handheld" />
+<link href="http://databib.org/css/print.css" rel="stylesheet" type="text/css" media="print" />
+<link href="http://databib.org/css/print.css" rel="stylesheet" type="text/css" media="handheld" />
+<link rel="shortcut icon" href="/images/bullet.ico" type="image/x-icon" />
 
 <script src="/scripts/dropdown.js"></script>
 
-<title>Databib: About</title>
+
+<title>About Databib</title>
 
  <meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
       <title>An Access Controlled Page</title>
@@ -28,119 +31,207 @@ $fgmembersite->CheckLogin();
 <body>
 
 <div id="page-content">
-  <div id="header">
-    <div id="new-header-content">
-          <div style="position: relative; z-index:100">
-            <img style="float:left; margin:0px; padding:0px;" id="imagebanner" alt="Header" src="/images/header.jpg"/>
-          </div> 
-    </div> 
-  </div>
-  
-  <div id="navigation">
-   <div id="navigation-content">
-    <ul>
-	<li><a href="index.php">Home</a></li><span class="pipe">|</span>
-	<li><a href="participate.php">Participate</a></li><span class="pipe">|</span>
-	<li><a href="connect.php">Connect</a></li><span class="pipe">|</span>
-	<li><a href="about.php">About</a></li>
-	
-	<?
-	    $sessionvar = $fgmembersite->GetLoginSessionVar();
-         if(empty($_SESSION[$sessionvar]))
-         {	 
-            echo("<li style=\"padding-left:490px;\"><a href='login.php'>Login/Register</a></li>");
-         }
-        else 
-        {
-        	echo("<li style=\"padding-left:370px;\"><a href='dashboard.php'>Dashboard</a></li>");
-        	echo("<li style=\"padding-left:8px;\"><a href='accountsettings.php'>Account</a></li>");
-        	echo("<li ><a href='logout.php'>Logout</a></li>");
-        }
-	   ?>
-   </ul>
-   <div style="clear:both"></div>
-   <div style="clear:both"></div>
-    </div>
+ <?php include "include/header.php"; ?>
 
-
-<div style="float: left;width: 954px;background-color: #fff;padding-left:10px; padding-right:10px;">
-
-<p>&nbsp;</p>
-<h2>About Databib</h2>
-<p>&nbsp;</p>
-
-<p>A partnership between Purdue and Penn State Universities proposes the creation of a new resource called Databib that will provide a “spark” to help engage librarians in data services by providing them with an online, community-driven, annotated bibliography and registry of research data repositories. In addition to being an important reference resource to librarians, data users, data producers, publishers, and research funding agencies, the Databib platform will challenge the concept of the traditional bibliography by serving and integrating bibliographic content in Web 1.0, Web 2.0, and Web 3.0 environments in order to help overcome some shortcomings or perceptions of traditional bibliographies. One technology in particular, Linked Data, shows a great deal of promise for delivering a “web of data” (i.e., the Semantic Web) and giving librarians a new toolkit for describing and classifying data in a relational manner.</p>
-
-<p>An expanded role for research libraries in digital data stewardship was forecasted by an Association of Research Libraries (ARL) workshop report to the NSF in 2006 [<a href="http://www.arl.org/bm~doc/digdatarpt.pdf">1</a>]. This forecast was substantiated in August 2010 by a survey of 57 ARL libraries, of which 21 libraries reported that they currently provide infrastructure or support services for e-Science, and an additional 23 libraries are in planning stages [<a href="http://www.arl.org/bm~doc/escience_report2010.pdf">2</a>]. A number of academic and research libraries are beginning to take a more active role in data management on their campuses, applying library science principles to help address the data deluge. This includes a wide range of activities such as helping researchers formulate funder-required data plans, adapting library practice to help organize and describe research datasets, developing data collections and data repositories, digital preservation, and data literacy.</p>
-
-<p>Librarians are in a good position to provide these services; unfortunately, there is currently no framework in place to support the organization and discovery of data repositories. Many funding agencies are requiring their sponsored researchers to submit their data to repositories without giving further instructions to them. What repositories are appropriate for a researcher to submit his or her data to? How do potential users find appropriate data repositories and discover datasets that meet their needs? How can librarians help patrons who are looking for data find and integrate it into the patrons’ research, learning, or teaching? Databib will begin to address these needs for librarians, data users, data producers, publishers, and funding agencies.</p>
-
-<p>The deliverables of this nine-month project will be 1) a functional and useful Databib platform as described in the project design; 2) the original description and annotation of primary repositories of research data represented by records in Databib; 3) a rubric for evaluating new repositories for inclusion in Databib; 4) documentation and supporting activities to catalyze a community of bibliographers; and 5) a white paper written for IMLS that describes the project design and provides an analysis of the project's results in terms of meeting these outcomes. A small panel of advisers will provide guidance throughout the project as well as to periodically review progress and give input to maximize the effectiveness of the project. The project’s design and evaluation plan establish measurable goals and outcomes for software development, the creation of new Databib records by both project personnel and community bibliographers, the number of integrations accomplished, usage statistics, and user feedback. All source code, content, and data will be sharing and dedicated to the public domain using <a href="http://creativecommons.org/publicdomain/zero/1.0/">Creative Commons Zero 1.0</a>.</p>
-<p><em>Adapted from proposal narrative, November 2010</em></p>
-
-<p>&nbsp;</p>
-
-<p>Databib is supported in part by a Sparks! Ignition National Leadership Grant (LG-46-11-0091-11) from the Institute of Museum and Library Services.</p>
-<p align="right"><a href="http://imls.gov"><img src="/images/IMLS.jpg" alt="IMLS" width="250" height="114" /></a></p>
- 
-<h2>Personnel</h2>
- 
-<div id="stuff" style="float: left;width: 944px;background-color: #fff;padding-left:10px; padding-right:10px;">
- 
+<div id="main">
+<h1>About Databib</h1>
+<p><strong>Databib is a tool for helping people identify and locate online repositories of research data.</strong> Users and bibliographers create and curate records that describe data repositories that users can search.</p>
 <p><ul>
-<li style="list-style-image:url(/images/bullet.gif);"><p><a href="http://www.lib.purdue.edu/research/witt">Michael Witt</a>, Project Director (PI)<br />
-Assistant Professor of Library Science<br />
-<a href="http://www.lib.purdue.edu">Purdue University Libraries</a></p></li>
+<li style="list-style-image:url(/images/bullet.gif);">What repositories are appropriate for a researcher to submit his or her data to?</li>
+<li style="list-style-image:url(/images/bullet.gif);">How do users find appropriate data repositories and discover datasets that meet their needs?</li>
+<li style="list-style-image:url(/images/bullet.gif);">How can librarians help patrons locate and integrate data into their research or learning?</li>
+</ul></p>
 
-<li style="list-style-image:url(/images/bullet.gif);"><p><a href="http://lackoftalent.org/michael/">Michael Giarlo</a>, Technical Architect (co-PI)<br />
-Digital Library Architect<br />
-<a href="http://www.psu.edu">Penn State University</a></p></li>
-
-<li style="list-style-image:url(/images/bullet.gif);"><p>Gretchen Stephens, Community Bibliographer<br />
-Associate Professor of Library Science<br />
-<a href="http://www.lib.purdue.edu">Purdue University Libraries</a></p></li>
-
-<li style="list-style-image:url(/images/bullet.gif);">
-  <p>Rachel Newbury &amp; Marcy Wilhelm-South, Interns<br />
-<a href="http://www.slis.iupui.edu/">School of Library and Information Science</a><br />
-Indiana University-Indianapolis</p></li>
-
-</ul>
-</div>
-
-<p>&nbsp;</p>
-<h2>Project Advisors</h2>
-
-<div id="stuff" style="float: left;width: 944px;background-color: #fff;padding-left:10px; padding-right:10px;">
-
+<p>Databib attempts to address these needs for the research community, including:
 <ul>
-<p><li style="list-style-image:url(/images/bullet.gif);"><a href="http://www.lib.unc.edu/users/jlriley/">Jenn Riley</a></li>
-<li style="list-style-image:url(/images/bullet.gif);"><a href="http://vivo.cornell.edu/display/individual7769">Gail Steinhart</a></li>
-<li style="list-style-image:url(/images/bullet.gif);"><a href="http://inkdroid.org/journal/about/">Ed Summers</a></li>
-<li style="list-style-image:url(/images/bullet.gif);"><a href="http://www.icpsr.umich.edu/icpsrweb/content/shared/ICPSR/staff/vardigan.html">Mary Vardigan</a></li>
-<li style="list-style-image:url(/images/bullet.gif);"><a href="http://www.nescent.org/dir/leaders.php">Todd Vision</a></li></p></ul>
+<li style="list-style-image:url(/images/bullet.gif);">data users</li>
+<li style="list-style-image:url(/images/bullet.gif);">data producers</li>
+<li style="list-style-image:url(/images/bullet.gif);">publishers and professional societies</li>
+<li style="list-style-image:url(/images/bullet.gif);">librarians</li>
+<li style="list-style-image:url(/images/bullet.gif);">research funding agencies</li>
+</ul>
+</p>
+<p><b>Databib Advisory Board</b>
+<ul>
+<li style="list-style-image:url(/images/bullet.gif);"><a href="http://www.flacso.org/" title="Adrián Bonilla Soria">Adrián Bonilla Soria</a>, Secretary General, Facultad Latinoamericana de Ciencias Sociales (FLACSO) – Ecuador</li>
+<li style="list-style-image:url(/images/bullet.gif);"><a href="http://www.arl.org/sparc/about/staff/Swan.shtml" title="Alma Swan">Alma Swan</a>, Director of European Advocacy, SPARC Europe – United Kingdom</li>
+<li style="list-style-image:url(/images/bullet.gif);"><a href="http://www.nrf.ac.za/risa.php?fdid=6">Andrew Kaniki</a>, Executive Director, Knowledge Fields Development, National Research Foundation - South Africa</li>
+<li style="list-style-image:url(/images/bullet.gif);"><a href="http://andrew.treloar.net" title="Andrew Treloar">Andrew Treloar</a>, Director of Technology of the Australian National Data Service (ANDS) – Australia</li>
+<li style="list-style-image:url(/images/bullet.gif);"><a href="http://www.bibliothek.kit.edu/cms/english/members_107.php" title="Frank Scholze">Frank Scholze</a>, Director of the Karlsruhe Institute of Technology (KIT) Library – Germany</li>
+<li style="list-style-image:url(/images/bullet.gif);"><a href="http://www.dcc.ac.uk/about-us/dcc-staff-directory/martin-donnelly" title="Martin Donnelly">Martin Donnelly</a>, Senior Institutional Support Officer, Digital Curation Centre (DCC) - United Kingdom</li>
+<li style="list-style-image:url(/images/bullet.gif);"><a href="http://www.cdlib.org/contact/staff_directory/pcruse.html" title="Patricia Cruse">Patricia Cruse</a>, Director of the University of California Curation Center, California Digital Library – United States</li>
+<li style="list-style-image:url(/images/bullet.gif);"><a href="http://sites.nationalacademies.org/PGA/brdi/PGA_045727" title="Paul Uhlir">Paul Uhlir</a>, Director of the Board on Research Data and Information, National Academy of Sciences – United States</li>
+<li style="list-style-image:url(/images/bullet.gif);"><a href="http://www.jnu.ac.in/library/RameshCGaur.htm" title="Ramesh C. Gaur">Ramesh C. Gaur</a>, University Librarian, Jawaharlal Nehru University – India</li>
+<li style="list-style-image:url(/images/bullet.gif);"><a href="http://www.cl.cu.edu.eg/" title="Sherif K. Shaheen">Sherif K. Shaheen</a>, Department Head of Library, Archives, and Information Technology, Cairo University - Egypt</li>
+<li style="list-style-image:url(/images/bullet.gif);"><a href="http://bio.unc.edu/people/faculty/vision" title="Todd Vision">Todd Vision</a>, Associate Professor, University of North Carolina-Chapel Hill – United States</li>
+<li style="list-style-image:url(/images/bullet.gif);"><a href="http://www.las.ac.cn/zxl/" title="Xiaolin Zhang">Xiaolin Zhang</a>, Executive Director of the National Science Library, Chinese Academy of Sciences – China</li>
+</ul>
+</p>
 
+<p><b>Databib Editorial Board</b>
+<ul>
+<li style="list-style-image:url(/images/bullet.gif);">Amy West, University of Minnesota, United States</li>
+<li style="list-style-image:url(/images/bullet.gif);">Andras Micsik, MTA SZTAKI, Hungary</li>
+<li style="list-style-image:url(/images/bullet.gif);">Catherine Jones, Science and Technology Facilities Council, United Kingdom</li>
+<li style="list-style-image:url(/images/bullet.gif);">Cristina Ribeiro, University of Porto, Portugal</li>
+<li style="list-style-image:url(/images/bullet.gif);">Dorothea Salo, University of Wisconsin, United States</li>
+<li style="list-style-image:url(/images/bullet.gif);">Fco. Javier Hernández San Miguel, University of Valencia, Spain</li>
+<li style="list-style-image:url(/images/bullet.gif);">Gail Steinhart, Cornell University, United States</li>
+<li style="list-style-image:url(/images/bullet.gif);">Jiban K. Pal, Indian Statistical Institute, India</li>
+<li style="list-style-image:url(/images/bullet.gif);">Jochen Schirrwagen, Bielefeld University, Germany</li>
+<li style="list-style-image:url(/images/bullet.gif);">Kassim S. Mwitondi, Sheffield Hallam University, United Kingdom</li>
+<li style="list-style-image:url(/images/bullet.gif);">Kei Kurakawa, National Institute of Informatics, Japan</li>
+<li style="list-style-image:url(/images/bullet.gif);">Lynn Yarmey, Snow and Ice Data Center, United States</li>
+<li style="list-style-image:url(/images/bullet.gif);">Michael Witt, Editor-in-Chief, Purdue University, United States</li>
+<li style="list-style-image:url(/images/bullet.gif);">Rowan Brownlee, University of Sydney, Australia</li>
+<li style="list-style-image:url(/images/bullet.gif);">Sarah Williams, University of Illinois, United States</li>
+<li style="list-style-image:url(/images/bullet.gif);">Steve Marks, University of Toronto, Canada</li>
+<li style="list-style-image:url(/images/bullet.gif);">Xiuling Qing, Chinese National Academy of Sciences, China</li>
+</ul>
+</p>
+<p><b>Acknowledgements</b></p>
+
+<p>Databib was originally sponsored by a Sparks! Innovation National Leadership Grant from the Institute of Museum and Library Services. Past project personnel included Michael Witt (PI), Mike Giarlo (co-PI), Gretchen Stephens, Siddharth Singh, Rachel Newbury, and Marcy Wilhelm-South, Ryan Houdeck, Heidi Tebbe, Ahmed Abdel-Gawad, and the grant was advised by Ed Summers, Todd Vision, Mary Vardigan, Jenn Riley, and Gail Steinhart. Hosting for Databib is provided by the Purdue University Libraries.</p>
+<hr>
+<p><b>Databib: Cataloging the World's Research Data Repositories</b></p>
+<?PHP
+
+include_once('./include/database_connection.php');
+
+$sql = "SELECT country_name, latitude, longitude, count(*) as 'freq' FROM approved join countries on approved.id_country = countries.id_country group by country_name";
+$result = mysql_query($sql) or die(mysql_error());
+
+if (!$result) {
+    echo "Could not successfully run query ($sql) from DB: " . mysql_error();
+    exit;
+}
+
+$countries = array();
+$freq = array();
+$cnt_lats = array();
+$cnt_longs = array();
+				
+while ($row = mysql_fetch_array($result)) {
+	$countries[] = $row['country_name']; 
+	$freq[] = $row['freq'];
+	$cnt_lats[] = $row['latitude']; 
+	$cnt_longs[] = $row['longitude']; 
+}
+?>
+<link href="http://code.google.com/apis/maps/documentation/javascript/examples/default.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+   .labels {
+     color: black;
+     background-color: white;
+     #font-family: "Lucida Grande", "Arial", sans-serif;
+     font-size: 8px;
+     font-weight: bold;
+     text-align: center;
+     width: 16px;     
+     border: 1px solid black;
+     white-space: nowrap;
+   }
+ </style>
+    <script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCHG22JDxC2tVrOrd9ynNKmUgVk5b_BbqM&sensor=false">
+    </script>
+	<script src="/scripts/markerwithlabel.js" type="text/javascript"></script>
+  <script type="text/javascript">
+	 var marker;
+	 var map;
+	 var cntrys = <?php echo json_encode($countries); ?>;
+	 var freq = <?php echo json_encode($freq); ?>;
+	 var lats = <?php echo json_encode($cnt_lats); ?>;
+	 var longs = <?php echo json_encode($cnt_longs); ?>;
+
+	 function initialize() {
+	  // created using http://gmaps-samples-v3.googlecode.com/svn/trunk/styledmaps/wizard/index.html
+		var stylez = [
+	 {
+			"featureType": "administrative.country",
+			"elementType": "geometry",
+			"stylers": [
+				  { "weight": 1 }//,
+				  //{ "color": "#e58682" }
+				]
+		  },
+		  {
+			"featureType": "administrative.country",
+			"elementType": "labels.text.fill",
+			"stylers": [
+			  { "visibility": "off" }
+			]
+		  },
+		{
+			"featureType": "landscape.natural",
+			"stylers": [
+			  { "visibility": "off" }
+			]
+		  }
+		];
+
+		   
+		var customMapType = new google.maps.StyledMapType(stylez,
+				{name: 'World'});
+
+		var location = new google.maps.LatLng(40,10);
+        var mapOptions = {
+			  center: location,
+			  zoom: 1,
+			  mapTypeId: google.maps.MapTypeId.ROADMAP,
+			  zoomControl: false,
+			  streetViewControl: false,
+			  //draggable: false,
+			  disableDoubleClickZoom: true,
+			  //scrollwheel: false,
+			  mapTypeControlOptions: {
+				mapTypeIds: ['Border View']
+              }
+        };
+		
+		map = new google.maps.Map(document.getElementById("myMap"),
+            mapOptions);
+			
+		map.mapTypes.set('Border View', customMapType);
+		map.setMapTypeId('Border View');
+		
+		for(var i = 0; i < cntrys.length; i++) {
+			location = new google.maps.LatLng(lats[i], longs[i]);
+			if(false) {
+			marker = new google.maps.Marker({
+				position: location,
+				title: freq[i] + " records",
+				map: map
+			});
+			} else {
+				marker = new MarkerWithLabel({
+			   position: new google.maps.LatLng(lats[i], longs[i]),
+			   draggable: true,
+			   raiseOnDrag: true,
+			   map: map,
+			   labelContent: freq[i],
+			   labelAnchor: new google.maps.Point(8, 2),
+			   labelClass: "labels", // the CSS class for the label
+			   labelStyle: {opacity: 0.75}
+			 });
+			 }
+			var address_dashed = cntrys[i].replace(" ", "-");
+			var icon_path = "http://databib.org/flags/png/" + address_dashed + "-16.png";
+			marker.setIcon(icon_path);
+		}
+	 }
+      google.maps.event.addDomListener(window, 'load', initialize);
+
+  </script>
+
+ <body>
+	<br/>
+    <div id='myMap' style="position:relative; width:500px; height:350px;"></div>
+	<br/>
+</body>
 </div>
 
-
-<p>&nbsp;</p>
-<hr />
-<p>&nbsp;</p>
-<p>1. Association of Research Libraries, <a href="http://www.arl.org/bm~doc/digdatarpt.pdf">To Stand the Test of Time: Long-term Stewardship of Digital Data Sets in Science and Engineering: ARL Workshop on New Collaborative Relationships: The Role of Academic Libraries in the Digital Data Universe</a>. 2006.</p>
-<p>2. C. Soehner, C. Steeves, and J. Ward, <a href="http://www.arl.org/bm~doc/escience_report2010.pdf">E-Science and Data Support Services: A Study of ARL Member Institutions</a>. Association of Research Libraries, 2010.</p>
-
-<p>&nbsp;</p>
-</div>
-
-<div style="clear:both;width: 974px;margin: 0;margin-right: auto;margin-left: auto;background:#000000;no-repeat;display: block;height: 37px; padding-right:0px;">
-<img src="/images/tagline.jpg" />
-     <div id="footer-copyright">
-	 <p xmlns:dct="http://purl.org/dc/terms/" xmlns:vcard="http://www.w3.org/2001/vcard-rdf/3.0#">
-     <a rel="license"
-     href="http://creativecommons.org/publicdomain/zero/1.0/">
-    <img src="http://i.creativecommons.org/p/zero/1.0/88x31.png" style="border-style: none;" alt="The content, data, and source code of Databib are dedicated to the Public Domain using the CC0 protocol." />
-  </a></div>
-</div>
+<?php include "include/footer.php"; ?>
 
 </div>
 </body>

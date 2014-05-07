@@ -2,7 +2,7 @@
 <?php
 include_once('database_connection.php');
 
-$sql="select name, username from users where user_role!='admin'";
+$sql="select name, username from users where user_role!='admin' order by name";
 $result = mysql_query($sql);
 ?>
 <br />

@@ -4,7 +4,7 @@
 	// ignore warnings, 
 	error_reporting(E_ERROR | E_PARSE);
 	include_once('database_connection.php');
-	$sql = "select id_rep from approved";
+	$sql = "select id_rep from approved left join countries on approved.id_country = countries.id_country";
 	$result = mysql_query($sql) or die(mysql_error());
 	$ids = array();
 	while($elm = mysql_fetch_assoc($result)){
@@ -75,10 +75,19 @@
 		$item = $dom->createTextNode($row['rep_url']);
 		$homepage->appendChild($item);
 		//dcterms:publisher
-		$publisher = $dom->createElement('dcterms:publisher');
+		$subquery = "select * from authorities, approved_authorities where authorities.id_authority = approved_authorities.id_authority AND approved_authorities.id_record = $ID";
+		$subresult = mysql_query($subquery) or die(mysql_error());
+		while($subrow = mysql_fetch_array($subresult))
+		{
+			$publisher = $dom->createElement('dcterms:publisher');
+			$content->appendChild($publisher);
+			$item = $dom->createTextNode($subrow['auth_name']);
+			$publisher->appendChild($item);
+		}
+		/*$publisher = $dom->createElement('dcterms:publisher');
 		$content->appendChild($publisher);
 		$item = $dom->createTextNode($row['rep_authority']);
-		$publisher->appendChild($item);
+		$publisher->appendChild($item);*/
 		//dcterms:description
 		$description = $dom->createElement('dcterms:description');
 		$content->appendChild($description);
@@ -97,7 +106,7 @@
 		//dcterms:spatial
 		$spatial = $dom->createElement('dcterms:spatial');
 		$content->appendChild($spatial);
-		$item = $dom->createTextNode($row['rep_location']);
+		$item = $dom->createTextNode($row['country_name']);
 		$spatial->appendChild($item);
 		//databib:reusePolicy
 		$reuse = $dom->createElement('databib:reusePolicy');
@@ -114,6 +123,11 @@
 		$content->appendChild($type);
 		$item = $dom->createTextNode($row['rep_type']);
 		$type->appendChild($item);
+		//databib:certification
+		$certification = $dom->createElement('databib:certification');
+		$content->appendChild($certification);
+		$item = $dom->createTextNode($row['rep_certification']);
+		$certification->appendChild($item);
 		//dcterms:subject
 		$subquery = "select * from subjects, subject_record_assoc_approved where subjects.id_subject = subject_record_assoc_approved.id_subject AND subject_record_assoc_approved.id_record = $ID";
 		$subresult = mysql_query($subquery) or die(mysql_error());

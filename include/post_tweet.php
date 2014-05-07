@@ -1,61 +1,34 @@
 <?php
 
-/**
- * Tweets a message from the user whose user token and secret you use.
- *
- * Although this example uses your user token/secret, you can use
- * the user token/secret of any user who has authorised your application.
- *
- * Instructions:
- * 1) If you don't have one already, create a Twitter application on
- *      https://dev.twitter.com/apps
- * 2) From the application details page copy the consumer key and consumer
- *      secret into the place in this code marked with (YOUR_CONSUMER_KEY
- *      and YOUR_CONSUMER_SECRET)
- * 3) From the application details page copy the access token and access token
- *      secret into the place in this code marked with (A_USER_TOKEN
- *      and A_USER_SECRET)
- * 4) Visit this page using your web browser.
- *
- * @author themattharris
- */
 
 function post_tweet($tweet_text) {
 
-  // Use Matt Harris' OAuth library to make the connection
-  // This lives at: https://github.com/themattharris/tmhOAuth
-  require_once('tmhOAuth/tmhOAuth.php');
-  require 'tmhOAuth/tmhUtilities.php'; 
-  // Set the authorization values
-  // In keeping with the OAuth tradition of maximum confusion, 
-  // the names of some of these values are different from the Twitter Dev interface
-  // user_token is called Access Token on the Dev site
-  // user_secret is called Access Token Secret on the Dev site
-  // The values here have asterisks to hide the true contents 
-  // You need to use the actual values from Twitter
- $tmhOAuth = new tmhOAuth(array(
-    'consumer_key' => 'tmDpE7IXt1F5kY7bACrbQ',
-    'consumer_secret' => 'hpwx56KlccBsQbACwYLIujqgx5FmczSXx6EndpzPwms',
-    'user_token' => '463042482-bWJ2QpYnD84xqidiHQCI5sAIgqV0egou38Vafr0Q',
-    'user_secret' => 'IxpQTJpsfYF2hzmpWtBV99Ww5PaG6fYtheIwSxGqAQ',
-  )); 
+	$clientLibraryPath = '/var/www/html/databib/ZendFramework-1.12.3-minimal/library/';
+	$oldPath = set_include_path($clientLibraryPath);
+	include_once('config.php');
+	require_once('Zend/Service/Twitter.php');
+	require_once('Zend/Oauth/Token/Access.php');
 
+	global $twitter_token;
+	global $twitter_tokensecret;
+	global $twitter_consumerKey;
+	global $twitter_consumerSecret;
+ 
+	$token = new Zend_Oauth_Token_Access();
+	$token->setToken($twitter_token)
+		->setTokenSecret($twitter_tokensecret);
 
-  
+	$twitter = new Zend_Service_Twitter(array(
+		'username' => 'databib',
+		'accessToken' => $token,
+		'oauthOptions' => array('consumerKey' => $twitter_consumerKey,
+		'consumerSecret' => $twitter_consumerSecret)
+	));
 
-$code = $tmhOAuth->request('POST', $tmhOAuth->url('1/statuses/update'), array(
-  'status' => $tweet_text
-));
-
-/*
-if ($code == 200) {
-  tmhUtilities::pr(json_decode($tmhOAuth->response['response']));
-} else {
-  tmhUtilities::pr($tmhOAuth->response['response']);
-}*/
-  
-  return $tmhOAuth->response['code'];
-}
+	$response = $twitter->statuses->update($tweet_text);
+ 
+	return $response;
+}  
 
 
 function getSmallLink($longurl){  
@@ -71,6 +44,5 @@ curl_close( $s );
   
 $obj = json_decode($result, true);  
 return $obj["results"]["$longurl"]["shortUrl"];  
-}  
-
+}
 ?>

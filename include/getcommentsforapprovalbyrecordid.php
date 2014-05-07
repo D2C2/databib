@@ -1,7 +1,6 @@
 <?php
 if (!$_POST) {
 echo '<h1>Recent Comments</h1>';
-$record_id = mysql_real_escape_string(@$_REQUEST['record']);
 $query = "SELECT * FROM comments WHERE recordid='$record_id' ORDER BY postdate DESC";
 $result = mysql_query($query);
 while($row = mysql_fetch_array($result)) {
@@ -10,7 +9,7 @@ while($row = mysql_fetch_array($result)) {
 
 <?php
 if($row['approved'] != 'y') {
-	echo '<table width="65%" >';
+	echo '<table width="100%" >';
 	echo '<tr bgcolor="#D7D8DB">';
 	echo '<td width="25%"> <input type ="checkbox" name="options" value='.$row['id_comment'].'>&nbsp;&nbsp;';
 	echo $row['comment']. '</input></td></tr>';
@@ -37,7 +36,7 @@ else {
 	}
 if(!empty($_REQUEST['Reject'])){
 		echo '<h3>The selected comment(s) were rejected</h3>';
-		$record_id = mysql_real_escape_string(@$_REQUEST['options']);
+		$comment_id = mysql_real_escape_string(@$_REQUEST['options']);
 		$query = "Delete from comments WHERE id_comment='$comment_id'";
 	    $result = mysql_query($query);
 	    echo '<br/><br/>';

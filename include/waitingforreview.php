@@ -39,7 +39,8 @@
 				$link = $row_linkcat[ 'rep_url' ];
 				$modified = $row_linkcat['rep_link_to_approved'];
 				$submitter = $row_linkcat['submitter'];
-			
+				$submission_date = $row_linkcat['submission_date'];
+				
 				if($submitter == "")
 				{
 					$submitter = "Anonymous";
@@ -51,19 +52,21 @@
 				
 				echo '<a href="viewnotapprovedbyrecordid.php?record='.$record_id.'" style="color:#993300; font-size:14px">';
 				echo $title;
-				echo  '</a>';
+				echo  '</a><br/>';
 				if($modified == -1)
 				{
-							echo "<span style=\"color:red\">- New Submission by <span style=\"color:black;font-weight:bold;\">$submitter</span> </span> ";
+							echo "<span class=\"tab1\"></span><span style=\"color:red\">New Submission by <span style=\"color:black;font-weight:bold;\">$submitter</span> </span> ";
 				}
 				else
 				{
-							echo " <span style=\"color:green\">- Modification by <span style=\"color:black;font-weight:bold;\">$submitter</span> </span>";
+							echo "<span class=\"tab1\"></span><span style=\"color:green\">Modification by <span style=\"color:black;font-weight:bold;\">$submitter</span> </span>";
 				}
+				echo " <span style=\"color:gray\">$submission_date</span>";
+				
 				echo '</div>';
 				$counter++;
 			}
-			echo '<br/><br/>';
+			echo '<br/>';
 			
 	
 		}  //end foreach $newarr
@@ -72,14 +75,20 @@
 		if ($startrow_notreview >= 1) {
 			$prevs = ($startrow_notreview - $limit);
 			echo '&nbsp;&nbsp;&nbsp;&nbsp;';
-			echo '<a href="'.$_SERVER['PHP_SELF'].'?startrow_notreview='.$prevs.'">Previous</a>';
+
+			$get_v = $_GET;
+			$get_v['startrow_notreview'] = $prevs;
+			echo '<a href="'.$_SERVER['PHP_SELF'].'?'.http_build_query($get_v).'">Previous</a>';
 		}
 	
 		$slimit = $startrow_notreview + $limit;
 		if (!($slimit >= $total_num_results) && $total_num_results != 1) {
 			$next = $startrow_notreview + $limit;
 			echo '&nbsp;&nbsp;&nbsp;&nbsp;';
-			echo '<a href="'.$_SERVER['PHP_SELF'].'?startrow_notreview='.$next.'">Next</a>';
+
+			$get_v = $_GET;
+			$get_v['startrow_notreview'] = $next;
+			echo '<a href="'.$_SERVER['PHP_SELF'].'?'.http_build_query($get_v).'">Next</a>';
 		}
 		echo '<br/>';
 	}

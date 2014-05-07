@@ -1,152 +1,175 @@
 <?php
+ini_set('display_errors', 'On');
+error_reporting(E_ALL);
 
 include_once('database_connection.php');
 
+require_once ( "sphinx/api/sphinxapi.php" );
+
+$cl = new SphinxClient ();
+
+$sphinx_hostname = "localhost";
 
 $limit = 15;
-$var = mysql_real_escape_string(@$_REQUEST['query']);
-$startrow = mysql_real_escape_string(@$_REQUEST['startrow']);
-if (empty($startrow))
-	$startrow=0;
+$n_per_sections = 9;
+$port = 9312;
+$index = "*";
+//$mode = SPH_MATCH_ANY;
+$mode = SPH_MATCH_EXTENDED;
+$groupby = "";
+$groupsort = "@group desc";
+$filtervals = array();
+$filter = "group_id";
+$distinct = "";
+$sortby = "";
+$sortexpr = "";
+$ranker = SPH_RANK_PROXIMITY_BM25;
+$ranker = SPH_RANK_FIELDMASK;
+$select = "";
+$startrow = intval(mysql_real_escape_string(@$_REQUEST['startrow']));
+$startrow = (int)(floor($startrow / $limit) * $limit); // makes sure that startrow must be multiples of limit to avoid bugs
+////////////
+// do query
+////////////
 
-//trim whitespace from the stored variable
-$trimmed = trim($var);
-//separate key-phrases into keywords
-$trimmed_array = explode(" ",$trimmed);
-// check for an empty string and display a message.
-if ($trimmed == "") {
-	$resultmsg =  "<br/><p>Search Error</p><p>Please enter a search...</p>" ;
-}
-// check for a search parameter
-if (!isset($var)){
-	$resultmsg =  "<p>Search Error</p><p>We don't seem to have a search parameter! </p>" ;
-}
+$query = str_replace(" and ", " & ", $query);
+$query = str_replace(" or ", " | ", $query);
+$query = str_replace(" not ", " -", $query);
 
-$total_num_results = 0 ;
+$cl->SetMatchMode ( $mode );
+$cl->SetServer ( $sphinx_hostname, $port );
+$cl->SetConnectTimeout ( 1 );
+$cl->SetArrayResult ( true );
+#$cl->SetWeights ( array(100, 1) );
+if ( count($filtervals) )	$cl->SetFilter ( $filter, $filtervals );
+if ( $groupby )				$cl->SetGroupBy ( $groupby, SPH_GROUPBY_ATTR, $groupsort );
+if ( $sortby )				$cl->SetSortMode ( SPH_SORT_EXTENDED, $sortby );
+if ( $sortexpr )			$cl->SetSortMode ( SPH_SORT_EXPR, $sortexpr );
+if ( $distinct )			$cl->SetGroupDistinct ( $distinct );
+if ( $select )				$cl->SetSelect ( $select );
+if ( $limit )				$cl->SetLimits ( $startrow, $limit, ( $limit>1000 ) ? $limit : 1000 );
 
-foreach ($trimmed_array as $trimm) {
-	
-	
-	/*$query = "SELECT *, MATCH (rep_title, rep_description) AGAINST ('$trimm')
-	AS score FROM approved WHERE MATCH(rep_title, rep_description) AGAINST('$trimm') ORDER BY score DESC ";
-	$numresults = mysql_query ($query) ;
-	$num_results_fulltext = mysql_num_rows ($numresults);
-	
-	$num_results_without_fulltext = 0;
-	//If MATCH query doesn't return any results due to how it works do a search using LIKE
-	if($num_results_fulltext < 1) {
-		$query = "SELECT * FROM approved WHERE rep_title LIKE '%$trimm%' OR rep_description LIKE '%$trimm%'";
-		$numresults = mysql_query ($query, $connection);
-		$num_results_without_fulltext = mysql_num_rows ($numresults);
-	}
 
-	$total_num_results +=  $num_results_fulltext + $num_results_without_fulltext;*/
+$cl->SetRankingMode ( $ranker );
+$cl->SetFieldWeights ( array('title' => 100, 'authority'=>1, 'description'=>4, 'location'=>1, 'subjects'=>50, 'classification'=>20 ) );
 
-	$query = "SELECT * FROM approved WHERE rep_title LIKE '%$trimm%' OR rep_description LIKE '%$trimm%'";
-	$numresults = mysql_query ($query, $connection);
-	$num_results_without_fulltext = mysql_num_rows ($numresults);
-	$total_num_results +=  $num_results_without_fulltext;
+$res = $cl->Query ( $query, $index );
 
-	$numresults = mysql_query ($query) ;
-	$row = mysql_fetch_array ($numresults);
+echo "<div id=\"results_div\" name=\"results_div\">";
 
-	//store record id of every item that contains the keyword in the array we need to do this to avoid display of duplicate search result.
-	do {
-		$adid_array[] = $row[ 'id_rep' ];
-	} while( $row= mysql_fetch_array($numresults));
+if ( $res===false )
+{
+	print "<br/><p>Query failed: " . $cl->GetLastError() . ".</p>";
+
+} else
+{
+
 }
 
 //Display a message if no results found
-if($num_results_fulltext == 0 && $num_results_without_fulltext == 0){
-	$resultmsg = "<br/><p>Search results for: ". $trimmed."</p><p>Sorry, your search returned zero results</p>" ;
-}
+$count = $res["total"];
 
-//delete duplicate record id's from the array. To do this we will use array_unique function
-$tmparr = array_unique($adid_array);
-$count = count($tmparr);
-for ($i = 0, $j = $startrow; ($j < $startrow + $limit) && ($j < $count); $j++) {
-	$newarr[$i] = $tmparr[$j];
-	$i++;
-}
-
-// now you can display the results returned. But first we will display the search form on the top of the page
-echo ' <form name="search_bar" method="get" action="search_results.php">
-   <div style="width:700px; cellpadding:15px;">
-       <span style="font: 14px arial;">Search</span>&nbsp;
-         <input type="text" name="query" style="width:300px; height:22px;" autofocus> 
-         </input> 
-         &nbsp;&nbsp;
-         <input type="submit" name="Submit" style="width:45px; height:26px;" 
-           value="Find">
-         
-         </input>
-         &nbsp;&nbsp;&nbsp;&nbsp;
-<!--         <a href="advanced_search.php"> Advanced Search</a> -->
-
-   </div>
-  </form>';
-
-$num_iter = 0;
-
-if( isset ($resultmsg)) {
+if($count == 0){
+	$resultmsg = "<br/><p>Search results for: ". $display_query ."</p><p>Sorry, your search returned zero results</p>" ;
 	echo $resultmsg;
-} else {
-	echo "<br/><p>Search results for: <strong>" . $var."</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+}
+else {
+	$i = 0;
+	foreach ( $res["matches"] as $docinfo )	{
+		if($i < $limit) {
+			$newarr[$i] = $docinfo["id"];
+			$i++;
+		}
+		else break;
+	}
+	echo "<br/><p>Search results for: <strong>" . $display_query."</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 	echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-	echo "Total number of results: <strong>" . $total_num_results."</strong></p>";
+	echo "Total number of results: <strong>" . $count."</strong>";
+	echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+	echo "Showing results: <strong>" . ($startrow+1) . "-" . ($startrow+$i) . "</strong></p>";
+	echo "<br/>";
+	
 	foreach($newarr as $value){
-		if($num_iter < $limit)
-			$num_iter++;
-		else 
-			break;
+		
 		$query_value = "SELECT * FROM approved WHERE id_rep = '".$value."'";
 		$num_value = mysql_query ($query_value);
 		$row_linkcat = mysql_fetch_array ($num_value);
 		$row_num_links = mysql_num_rows ($num_value);
+		if($row_num_links == 0) continue;
 		
 		//create summary of the long text. For example if the field2 is your full text grab only first 130 characters of it for the result
 		$introcontent = strip_tags($row_linkcat[ 'rep_description']);
 		$introcontent = substr($introcontent, 0, 100)."...";
 		$record_id = $row_linkcat[ 'id_rep'];
-		$title = preg_replace ( "'($var)'si" , "<strong>\\1</strong>" , $row_linkcat[ 'rep_title' ] );
-		$desc = preg_replace ( "'($var)'si" , "<strong>\\1</strong>" , $introcontent);
+		$title = preg_replace ( "'($query)'si" , "<strong>\\1</strong>" , $row_linkcat[ 'rep_title' ] );
+		$desc = preg_replace ( "'($query)'si" , "<strong>\\1</strong>" , $introcontent);
 		$link =  $row_linkcat[ 'rep_url' ] ;
 		if(substr($link, 0, 4) != "http")
 			$link = "http://". $link;
-		foreach($trimmed_array as $trimm){
-			if($trimm != 'b' ){
-				//$title = preg_replace( "'($trimm)'si" ,  "<strong>\\1</strong>" , $title);
-				$desc = preg_replace( "'($trimm)'si" , "<strong>\\1</strong>" , $desc);
-			}
-		}//end foreach $trimmed_array
+
 		echo '<div>';
 		echo '<div>';
-		echo '<a href="viewapprovedbyrecordid.php?record='.$record_id.'" style="color:#993300; font-size:14px">';
+		echo '<a href="repository/'.$record_id.'" style="color:#993300; font-size:14px">';
 		echo $title;
 		echo  '</a>';
-		echo '</div>';
+		echo "</div>\n";
 		
 		echo '<div>';
 		echo $desc;
-		echo '</div>';
-		echo '</div>';
+		echo "</div>\n";
+		echo "</div>\n";
 		echo '<br/><br/>';
 
 	}
-	if($total_num_results > $limit){
+	if($count > $limit){
+		echo "<br><br>";
+		//echo '<p style="text-align: center;">';
+		echo '&nbsp;&nbsp;&nbsp;&nbsp;';
 		if ($startrow >= 1) { 
-			$prevs = ( $startrow - $limit);
-			echo '<a href="'. $_SERVER['PHP_SELF'].'?startrow='.$prevs.'&query='.$var.'">Previous</a>';
-			echo '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+			$prevs = max( $startrow - $limit, 0);
+			echo '<a href="'. $_SERVER['PHP_SELF'] . '?startrow=0&query='.$query.'&display_query=' . $display_query. '"><< First</a>';
+			echo '&nbsp;&nbsp;&nbsp;&nbsp;';
+			echo '<a href="'. $_SERVER['PHP_SELF'].'?startrow='.$prevs.'&query='.$query.'&display_query=' . $display_query. '">< Previous</a>';
+			echo "&nbsp;&nbsp;&nbsp;&nbsp;\n";
+		} else {
+			echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\n";
+			echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\n";
+			echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\n";
+		}
 		
+		$rem = $startrow % ($n_per_sections * $limit);
+		$sections = (int) ($startrow / ($n_per_sections * $limit));
+		$start_ind = $sections * $n_per_sections;
+		$ind = $start_ind + (int)($rem / $limit);
+		$max_ind = floor(($count-1) / $limit);
+		$start_ind = max($ind - round($n_per_sections/2), 0);
+		$end_ind = min($start_ind + $n_per_sections, $max_ind);
+	
+	
+		for ($counter = $start_ind; $counter <= $end_ind; $counter++) {
+			$nextrow = $counter * $limit;
+			if ( $counter == $ind ) {
+				echo '<a href="'. $_SERVER['PHP_SELF'] . '?startrow='. $nextrow . '&query='.$query.'&display_query=' . $display_query. '"><b>' . ($counter+1) . '</b></a>';
+			} else {
+				echo '<a href="'. $_SERVER['PHP_SELF'] . '?startrow='. $nextrow . '&query='.$query.'&display_query=' . $display_query. '">' . ($counter+1) . '</a>';
+			}
+			echo "&nbsp;&nbsp;&nbsp;&nbsp;\n";
 		}
-		if (!(($startrow + $limit) >= $total_num_results) && $total_num_results!=1) {
+		
+		$slimit = $startrow + $limit;
+		if (!($slimit >= $count) && $count!=1) {
 			$next = $startrow + $limit;
-			echo '<a href="'.$_SERVER['PHP_SELF'].'?startrow='.$next.'&query='.$var.'">Next</a>';
+			echo '<a href="'.$_SERVER['PHP_SELF'].'?startrow='.$next.'&query='.$query.'&display_query=' . $display_query. '">Next ></a>';
+			echo '&nbsp;&nbsp;&nbsp;&nbsp;';
+			$last = $max_ind * $limit;
+			echo '<a href="'.$_SERVER['PHP_SELF'].'?startrow=' . $last . '&query='.$query. '&display_query=' . $display_query. '">Last >></a>';
 		}
+		//echo '</p>';
 		echo '<br/>';
 	}
 }
+
+echo "</div>";
 ?>
 
 

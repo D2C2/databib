@@ -25,7 +25,7 @@ Password <input type='password' name="password"
 	style="width: 250px; height: 20px; margin-left: 15px; margin-bottom: 8px;"
 	value="" size=20><br>
 
-<input type=submit name="submit" value="Update"></form>
+<input type=submit name="submit" value="Update" class="button"></form>
 
 	<?php
 	 
@@ -34,7 +34,7 @@ Password <input type='password' name="password"
 	$id = $row['id_user'];
 	$useremail = $_POST['email'];
 	$name =  $_POST['name'];
-	$password = md5($_POST['password']);
+	$password = $_POST['password'];
 	if(!empty($password)){
 			$sql = "update users set email='$useremail', name='$name', password='".md5($password)."'  where id_user='$id'";
 			

@@ -48,6 +48,7 @@ foreach($newarr as $value){
 		$link = $row_linkcat[ 'rep_url' ];
 		$modified = $row_linkcat['rep_link_to_approved'];
 		$submitter = $row_linkcat['submitter'];
+		$submission_date = $row_linkcat['submission_date'];
 		
 		if($submitter == "")
 		{
@@ -59,15 +60,16 @@ foreach($newarr as $value){
 		echo '.&nbsp;&nbsp;';
 		echo '<a href="viewnotassignedbyrecordid.php?record='.$record_id.'" style="color:#993300; font-size:14px">';
 		echo $title;
-		echo  '</a>';
+		echo  '</a><br/>';
 		if($modified == -1)
 		{
-				echo "<span style=\"color:red\">- New Submission by <span style=\"color:black;font-weight:bold;\">$submitter</span> </span> ";
+				echo "<span class=\"tab1\"></span><span style=\"color:red\">New Submission by <span style=\"color:black;font-weight:bold;\">$submitter</span> </span> ";
 		}
 		else
 		{
-				echo " <span style=\"color:green\">- Modification by <span style=\"color:black;font-weight:bold;\">$submitter</span> </span>";
+				echo "<span class=\"tab1\"></span><span style=\"color:green\">Modification by <span style=\"color:black;font-weight:bold;\">$submitter</span> </span>";
 		}
+		echo " <span style=\"color:gray\">$submission_date</span>";
 		echo '</div>';
 		$counter++;
 	}

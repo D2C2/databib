@@ -2,7 +2,7 @@
 $show_reassign_link = 0;
 include_once('database_connection.php');
 $record_id = mysql_real_escape_string(@$_REQUEST['recordchoice']);	
-$sql = "select * from approved where id_rep ='$record_id'";
+$sql = "select * from approved left join countries on approved.id_country = countries.id_country where id_rep ='$record_id'";
 $result = mysql_query($sql) or die(mysql_error());
 $row = mysql_fetch_array($result);
 
@@ -58,7 +58,7 @@ do {
 	</tr>
 	<tr class="spaceUnder">
 		<td class="textBold" width="20%"><font face=arial size=2
-			color=#993300;>Status</font></td>
+			color=#993300;>Access</font></td>
 		<td><font face=arial size=2><?php echo $row['rep_status'];?></font></td>
 	</tr>
 	<tr class="spaceUnder">
@@ -68,12 +68,12 @@ do {
 	</tr>
 	<tr class="spaceUnder">
 		<td class="textBold" width="20%"><font face=arial size=2
-			color=#993300;>Location</font></td>
-		<td><font face=arial size=2><?php echo $row['rep_location'];?></font></td>
+			color=#993300;>Country</font></td>
+		<td><font face=arial size=2><?php echo $row['country_name'];?></font></td>
 	</tr>
 	<tr class="spaceUnder">
 		<td class="textBold" width="20%"><font face=arial size=2
-			color=#993300;>Access</font></td>
+			color=#993300;>Reuse</font></td>
 		<td><font face=arial size=2><?php echo $row['rep_access'];?></font></td>
 	</tr>
 	<tr class="spaceUnder">
@@ -85,6 +85,11 @@ do {
 		<td class="textBold" width="20%"><font face=arial size=2
 			color=#993300;>Type</font></td>
 		<td><font face=arial size=2><?php echo $row['rep_type'];?></font></td>
+	</tr>
+	<tr class="spaceUnder">
+		<td class="textBold" width="20%"><font face=arial size=2
+			color=#993300;>Certification</font></td>
+		<td><font face=arial size=2><?php echo $row['rep_certification'];?></font></td>
 	</tr>
 </table>
 <br />

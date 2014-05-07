@@ -1,8 +1,9 @@
 <?PHP
+error_reporting(E_ERROR | E_WARNING | E_PARSE);
 
-
-require_once("membersite.php");
 require_once("config.php");
+require_once("membersite.php");
+
 
 $fgmembersite = new FGMembersite();
 

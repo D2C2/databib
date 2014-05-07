@@ -18,13 +18,30 @@ http://www.html-form-guide.com/php-form/php-registration-form.html
 http://www.html-form-guide.com/php-form/php-login-form.html
 
 */
+
+require_once("config.php");
 require_once("class.phpmailer.php");
 require_once("class.smtp.php");
 require_once("formvalidator.php");
-require_once("config.php");
 
+
+//-----Ahmed----
+	function getIP() { 
+		$ip; 
+		if (getenv("HTTP_CLIENT_IP")) 
+			$ip = getenv("HTTP_CLIENT_IP"); 
+		else if(getenv("HTTP_X_FORWARDED_FOR")) 
+			$ip = getenv("HTTP_X_FORWARDED_FOR"); 
+		else if(getenv("REMOTE_ADDR")) 
+			$ip = getenv("REMOTE_ADDR"); 
+		else 
+			$ip = "UNKNOWN";
+		return $ip; 
+	}
+	
 class FGMembersite
 {
+
 	var $admin_email;
 	var $from_address;
 
@@ -40,8 +57,11 @@ class FGMembersite
 	//-----Initialization -------
 	function FGMembersite()
 	{
+		global $website_name;
+		global $random_key;
 		$this->sitename = $website_name;
 		$this->rand_key = $random_key;
+
 	}
 
 	function InitDB($host,$uname,$pwd,$database,$tablename)
@@ -64,10 +84,10 @@ class FGMembersite
 	}
 
 	function SetRandomKey($key)
-	{
-		$this->rand_key = $key;
-	}
-
+    {
+        $this->rand_key = $key;
+    }
+	
 	//-------Main Operations ----------------------
 	function RegisterUser()
 	{
@@ -137,14 +157,17 @@ class FGMembersite
 		$username = trim($_POST['username']);
 		$password = trim($_POST['password']);
 
-		session_start();
+		if(!isset($_SESSION))
+		{
+			session_start();
+		}
 		if(!$this->CheckLoginInDB($username,$password))
 		{
 			return false;
 		}
 
 		$_SESSION[$this->GetLoginSessionVar()] = $username;
-
+		
 		return true;
 	}
 
@@ -187,8 +210,111 @@ class FGMembersite
 		$_SESSION[$sessionvar]=NULL;
 
 		unset($_SESSION[$sessionvar]);
+		unset($_SESSION['user_role']);
 	}
 
+	function EmailResetPasswordLink()
+    {
+        if(empty($_POST['email']))
+        {
+            $this->HandleError("Email is empty!");
+            return false;
+        }
+        $user_rec = array();
+        if(false === $this->GetUserFromEmail($_POST['email'], $user_rec))
+        {
+            return false;
+        }
+        if(false === $this->SendResetPasswordLink($user_rec))
+        {
+            return false;
+        }
+        return true;
+    }
+    
+    function ResetPassword()
+    {
+        if(empty($_GET['email']))
+        {
+            $this->HandleError("Email is empty!");
+            return false;
+        }
+        if(empty($_GET['code']))
+        {
+            $this->HandleError("reset code is empty!");
+            return false;
+        }
+        $email = trim($_GET['email']);
+        $code = trim($_GET['code']);
+        
+        if($this->GetResetPasswordCode($email) != $code)
+        {
+            $this->HandleError("Bad reset code!");
+            return false;
+        }
+        
+        $user_rec = array();
+        if(!$this->GetUserFromEmail($email,$user_rec))
+        {
+            return false;
+        }
+        
+        $new_password = $this->ResetUserPasswordInDB($user_rec);
+        if(false === $new_password || empty($new_password))
+        {
+            $this->HandleError("Error updating new password");
+            return false;
+        }
+        
+        if(false == $this->SendNewPassword($user_rec,$new_password))
+        {
+            $this->HandleError("Error sending new password");
+            return false;
+        }
+        return true;
+    }
+    
+    function ChangePassword()
+    {
+        if(!$this->CheckLogin())
+        {
+            $this->HandleError("Not logged in!");
+            return false;
+        }
+        
+        if(empty($_POST['oldpwd']))
+        {
+            $this->HandleError("Old password is empty!");
+            return false;
+        }
+        if(empty($_POST['newpwd']))
+        {
+            $this->HandleError("New password is empty!");
+            return false;
+        }
+        
+        $user_rec = array();
+        if(!$this->GetUserFromEmail($this->UserEmail(),$user_rec))
+        {
+            return false;
+        }
+        
+        $pwd = trim($_POST['oldpwd']);
+        
+        if($user_rec['password'] != md5($pwd))
+        {
+            $this->HandleError("The old password does not match!");
+            return false;
+        }
+        $newpwd = trim($_POST['newpwd']);
+        
+        if(!$this->ChangePasswordInDB($user_rec, $newpwd))
+        {
+            return false;
+        }
+        return true;
+    }
+	
 	//-------Public Helper functions -------------
 	function GetSelfScript()
 	{
@@ -207,7 +333,6 @@ class FGMembersite
 	function RedirectToURL($url)
 	{
 		header("Location: $url");
-		exit;
 	}
 
 	function GetSpamTrapInputName()
@@ -238,11 +363,12 @@ class FGMembersite
 
 	function GetFromAddress()
 	{
+		global $email_id;
 		if(!empty($this->from_address))
 		{
 			return $this->from_address;
 		}
-		$from = "databib@gmail.com ";
+		$from = $email_id . " ";
 		return $from;
 	}
 
@@ -262,8 +388,7 @@ class FGMembersite
 		}
 		$username = $this->SanitizeForSQL($username);
 		$pwdmd5 = md5($password);
-		$qry = "Select name, email from $this->tablename where username='$username' and password='$pwdmd5' and confirmcode='y'";
-
+		$qry = "Select name, email, user_role, password, last_login_ip, num_fails, last_fail_time from $this->tablename where username='$username' and confirmcode='y'";
 		$result = mysql_query($qry,$this->connection);
 
 		if(!$result || mysql_num_rows($result) <= 0)
@@ -271,12 +396,43 @@ class FGMembersite
 			$this->HandleError("Error logging in. The username or password does not match");
 			return false;
 		}
-
+		
 		$row = mysql_fetch_assoc($result);
-		$_SESSION['name_of_user']  = $row['name'];
-		$_SESSION['email_of_user'] = $row['email'];
-
-		return true;
+		$current_ip = getIP();
+		$now_date = date('Y-m-d H:i:s');
+		$now_time = strtotime($now_date);
+		
+		if($row['last_login_ip'] == $current_ip) {
+			$last_fail_time = strtotime($row['last_fail_time']);
+			$diff_time = ($now_time - $last_fail_time)/(60*60);
+			
+			if($row['num_fails'] >= 10 && $diff_time < 1) {
+				$this->HandleError("Error logging in. Account is locked for an hour");
+				return false;
+			}
+		}
+		
+		if($row['password'] == $pwdmd5) {
+			$_SESSION['name_of_user']  = $row['name'];
+			$_SESSION['email_of_user'] = $row['email'];
+			$_SESSION['user_role'] = $row['user_role'];
+			$_SESSION['user_name'] = $username;
+			
+			$qry = "update users set num_fails=0 where username='$username'";
+			mysql_query($qry,$this->connection) or die(mysql_error());
+			
+			return true;
+		} else {
+			if($row['last_login_ip'] == $current_ip)
+				$num_fails = $row['num_fails'] + 1;
+			else
+				$num_fails = 1;
+			$qry = "update users set last_login_ip='$current_ip', num_fails=$num_fails, last_fail_time='$now_date' where username='$username'";
+			mysql_query($qry,$this->connection) or die(mysql_error());
+			$this->HandleError("Error logging in. The username or password does not match");
+			return false;
+		}
+		
 	}
 
 	function UpdateDBRecForConfirmation(&$user_rec)
@@ -308,8 +464,57 @@ class FGMembersite
 		return true;
 	}
 
+	function ResetUserPasswordInDB($user_rec)
+    {
+        $new_password = substr(md5(uniqid()),0,10);
+        
+        if(false == $this->ChangePasswordInDB($user_rec,$new_password))
+        {
+            return false;
+        }
+        return $new_password;
+    }
+    
+    function ChangePasswordInDB($user_rec, $newpwd)
+    {
+        $newpwd = $this->SanitizeForSQL($newpwd);
+        
+        $qry = "Update $this->tablename Set password='".md5($newpwd)."' Where  id_user=".$user_rec['id_user']."";
+        
+        if(!mysql_query( $qry ,$this->connection))
+        {
+            $this->HandleDBError("Error updating the password \nquery:$qry");
+            return false;
+        }     
+        return true;
+    }
+    
+    function GetUserFromEmail($email,&$user_rec)
+    {
+        if(!$this->DBLogin())
+        {
+            $this->HandleError("Database login failed!");
+            return false;
+        }   
+        $email = $this->SanitizeForSQL($email);
+        
+        $result = mysql_query("Select * from $this->tablename where email='$email'",$this->connection);  
+
+        if(!$result || mysql_num_rows($result) <= 0)
+        {
+            $this->HandleError("There is no user with email: $email");
+            return false;
+        }
+        $user_rec = mysql_fetch_assoc($result);
+
+        
+        return true;
+    }
+	
 	function SendUserWelcomeEmail(&$user_rec)
 	{
+		global $email_pass;
+
 		$mailer = new PHPMailer();
 
 		$mailer->IsSMTP(); // telling the class to use SMTP
@@ -322,7 +527,7 @@ class FGMembersite
 		$mailer->Host       = "smtp.gmail.com";     // sets the SMTP server
 		$mailer->Port       = 465;                    // set the SMTP port for the GMAIL server
 		$mailer->Username   = "databib";  			 // SMTP account username
-		$mailer->Password   = "Data1sGood";           // SMTP account password
+		$mailer->Password   = $email_pass;           // SMTP account password
 		$mailer->CharSet = 'utf-8';
 		$mailer->AddAddress($user_rec['email'],$user_rec['name']);
 		$mailer->Subject = "Welcome to ".$this->sitename;
@@ -343,6 +548,8 @@ class FGMembersite
 
 	function SendAdminIntimationOnRegComplete(&$user_rec)
 	{
+		global $email_pass;
+
 		if(empty($this->admin_email))
 		{
 			return false;
@@ -359,7 +566,7 @@ class FGMembersite
 		$mailer->Host       = "smtp.gmail.com";     // sets the SMTP server
 		$mailer->Port       = 465;                    // set the SMTP port for the GMAIL server
 		$mailer->Username   = "databib";  // SMTP account username
-		$mailer->Password   = "Data1sGood";           // SMTP account password
+		$mailer->Password   = $email_pass;           // SMTP account password
 		$mailer->CharSet = 'utf-8';
 
 		$mailer->AddAddress($this->admin_email);
@@ -379,6 +586,95 @@ class FGMembersite
 		return true;
 	}
 
+	function GetResetPasswordCode($email)
+    {
+       return substr(md5($email.$this->sitename.$this->rand_key),0,10);
+    }
+    
+    function SendResetPasswordLink($user_rec)
+    {
+        $email = $user_rec['email'];
+        
+        $mailer = new PHPMailer();
+        
+        $mailer->SMTPDebug  = 2;                     // enables SMTP debug information (for testing)
+		// 1 = errors and messages
+		// 2 = messages only
+		$mailer->SMTPAuth   = true;                  // enable SMTP authentication
+		$mailer->SMTPSecure = "ssl";                 // sets the prefix to the servier
+		$mailer->Host       = "smtp.gmail.com";     // sets the SMTP server
+		$mailer->Port       = 465;                    // set the SMTP port for the GMAIL server
+		$mailer->Username   = "databib";  			 // SMTP account username
+		$mailer->Password   = $email_pass;           // SMTP account password
+		$mailer->CharSet = 'utf-8';
+        
+        $mailer->AddAddress($email,$user_rec['name']);
+        
+        $mailer->Subject = "Your reset password request at ".$this->sitename;
+
+        $mailer->From = $this->GetFromAddress();
+        
+        $link = $this->GetAbsoluteURLFolder().
+                '/resetpwd.php?email='.
+                urlencode($email).'&code='.
+                urlencode($this->GetResetPasswordCode($email));
+
+        $mailer->Body ="Hello ".$user_rec['name']."\r\n\r\n".
+        "There was a request to reset your password at ".$this->sitename."\r\n".
+        "Please click the link below to complete the request: \r\n".$link."\r\n".
+        "Regards,\r\n".
+        "Webmaster\r\n".
+        $this->sitename;
+        
+        if(!$mailer->Send())
+        {
+            return false;
+        }
+        return true;
+    }
+    
+    function SendNewPassword($user_rec, $new_password)
+    {
+        $email = $user_rec['email'];
+        
+        $mailer = new PHPMailer();
+        
+        $mailer->SMTPDebug  = 2;                     // enables SMTP debug information (for testing)
+		// 1 = errors and messages
+		// 2 = messages only
+		$mailer->SMTPAuth   = true;                  // enable SMTP authentication
+		$mailer->SMTPSecure = "ssl";                 // sets the prefix to the servier
+		$mailer->Host       = "smtp.gmail.com";     // sets the SMTP server
+		$mailer->Port       = 465;                    // set the SMTP port for the GMAIL server
+		$mailer->Username   = "databib";  			 // SMTP account username
+		$mailer->Password   = $email_pass;           // SMTP account password
+		$mailer->CharSet = 'utf-8';
+        
+        $mailer->AddAddress($email,$user_rec['name']);
+        
+        $mailer->Subject = "Your new password for ".$this->sitename;
+
+        $mailer->From = $this->GetFromAddress();
+        
+        $mailer->Body ="Hello ".$user_rec['name']."\r\n\r\n".
+        "Your password is reset successfully. ".
+        "Here is your updated login:\r\n".
+        "username:".$user_rec['username']."\r\n".
+        "password:$new_password\r\n".
+        "\r\n".
+        "Login here: ".$this->GetAbsoluteURLFolder()."/login.php\r\n".
+        "\r\n".
+        "Regards,\r\n".
+        "Webmaster\r\n".
+        $this->sitename;
+        
+        if(!$mailer->Send())
+        {
+            return false;
+        }
+        return true;
+    }    
+	
 	function ValidateRegistrationSubmission()
 	{
 		//This is a hidden input field. Humans won't fill this field.
@@ -421,6 +717,8 @@ class FGMembersite
 
 	function SendUserConfirmationEmail(&$formvars)
 	{
+		global $email_pass;
+
 		$mailer = new PHPMailer();
 
 		$mailer->IsSMTP(); // telling the class to use SMTP
@@ -433,7 +731,7 @@ class FGMembersite
 		$mailer->Host       = "smtp.gmail.com";       // sets the SMTP server
 		$mailer->Port       = 465;                    // set the SMTP port for the GMAIL server
 		$mailer->Username   = "databib";  	   			// SMTP account username
-		$mailer->Password   = "Data1sGood";           // SMTP account password
+		$mailer->Password   = $email_pass;           // SMTP account password
 		$mailer->CharSet = 'utf-8';
 
 		$mailer->AddAddress($formvars['email'],$formvars['name']);
@@ -471,6 +769,8 @@ class FGMembersite
 
 	function SendAdminIntimationEmail(&$formvars)
 	{
+		global $email_pass;
+
 		if(empty($this->admin_email))
 		{
 			return false;
@@ -489,7 +789,7 @@ class FGMembersite
 		$mailer->Host       = "smtp.gmail.com";     // sets the SMTP server
 		$mailer->Port       = 465;                    // set the SMTP port for the GMAIL server
 		$mailer->Username   = "databib";  // SMTP account username
-		$mailer->Password   = "Data1sGood";           // SMTP account password
+		$mailer->Password   = $email_pass;           // SMTP account password
 		$mailer->CharSet = 'utf-8';
 
 		$mailer->AddAddress($this->admin_email);

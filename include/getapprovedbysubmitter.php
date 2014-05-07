@@ -20,7 +20,7 @@ for ($i2 = 0, $j2 = $startrow_approved; ($j2 < $startrow_approved + $limit2) && 
 	$newarr2[$i2] = $tmparr2[$j2];
 	$i2++;
 }
-$counter2 = 1;
+$counter2 = $startrow_approved + 1;
 foreach($newarr2 as $value2){
 	$query_value2 = "SELECT * FROM approved WHERE id_rep = '".$value2."'";
 	$num_value2 = mysql_query ($query_value2);
@@ -35,6 +35,7 @@ foreach($newarr2 as $value2){
 		$title2 = $row_linkcat2[ 'rep_title' ];
 		$desc2 =   $introcontent2;
 		$link2 = $row_linkcat2[ 'rep_url' ];
+		
 		echo '<br/>';
 		echo '<div>';
 		echo $counter2;
@@ -45,20 +46,25 @@ foreach($newarr2 as $value2){
 		echo '</div>';
 		$counter2++;
 	}
-	echo '<br/><br/>';
+	echo '<br/>';
 }
 
 if($total_num_results2 > $limit2){
 	if ($startrow_approved >= 1) {
 		$prevs2 = $startrow_approved - $limit2;
 		echo '&nbsp;&nbsp;&nbsp;&nbsp;';
-		echo '<a href="'.$_SERVER['PHP_SELF'].'?startrow_approved='.$prevs2.'">Previous</a>';
+		$get_v = $_GET;
+		$get_v['startrow_approved'] = $prevs2;
+		echo '<a href="'.$_SERVER['PHP_SELF'].'?'.http_build_query($get_v).'">Previous</a>';
 	}
 	$slimit2 = $startrow_approved + $limit2;
 	if (!($slimit2 >= $total_num_results2) && $total_num_results2!=2) {
 		$next2 = $startrow_approved + $limit2;
 		echo '&nbsp;&nbsp;&nbsp;&nbsp;';
-		echo '<a href="'.$_SERVER['PHP_SELF'].'?startrow_approved='.$next2.'">Next</a>';
+		
+		$get_v = $_GET;
+		$get_v['startrow_approved'] = $next2;
+		echo '<a href="'.$_SERVER['PHP_SELF'].'?'.http_build_query($get_v).'">Next</a>';
 	}
 	echo '<br/>';
 }

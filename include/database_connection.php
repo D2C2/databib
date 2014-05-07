@@ -7,7 +7,7 @@ $username_logon = $database_username;
 $password_logon = $database_password;
 //open database connection
 $connection = mysql_connect($hostname_logon, $username_logon, $password_logon) 
-or die ( mysql_error());
+or die ( "Unable to connect to the database" );
 //select database
 mysql_select_db($database_logon) or die ( "Unable to select database!" );
 ?>

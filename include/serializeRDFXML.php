@@ -6,7 +6,7 @@
 	include_once('database_connection.php');
 	session_start();
 	$ID = $_SESSION["ID"];
-	$sql = "select * from approved where id_rep ='$ID'";
+	$sql = "select * from approved left join countries on approved.id_country = countries.id_country where id_rep ='$ID'";
 	$result = mysql_query($sql) or die(mysql_error());
 	$row = mysql_fetch_array($result);
 				
@@ -55,6 +55,11 @@
 	$rdf->appendChild($xmlns_databib);
 	$value = $dom->createTextNode('http://databib.org/ns#');
 	$xmlns_databib->appendChild($value);
+	//geonames
+        $xmlns_gn = $dom->createAttribute('xmlns:gn');
+        $rdf->appendChild($xmlns_gn);
+        $value = $dom->createTextNode('http://www.geonames.org/ontology#');
+        $xmlns_gn->appendChild($value);
 	
 	//adding elements to the RDFXML
 	$content = $rdf->appendChild($dom->createElement('rdf:Description'));
@@ -73,10 +78,19 @@
 	$item = $dom->createTextNode($row['rep_url']);
 	$homepage->appendChild($item);
 	//dcterms:publisher
-	$publisher = $dom->createElement('dcterms:publisher');
+	$subquery = "select * from authorities, approved_authorities where authorities.id_authority = approved_authorities.id_authority AND approved_authorities.id_record = $ID";
+	$subresult = mysql_query($subquery) or die(mysql_error());
+	while($subrow = mysql_fetch_array($subresult))
+	{
+		$publisher = $dom->createElement('dcterms:publisher');
+		$content->appendChild($publisher);
+		$item = $dom->createTextNode($subrow['auth_name']);
+		$publisher->appendChild($item);
+	}	
+	/*$publisher = $dom->createElement('dcterms:publisher');
 	$content->appendChild($publisher);
 	$item = $dom->createTextNode($row['rep_authority']);
-	$publisher->appendChild($item);
+	$publisher->appendChild($item);*/
 	//dcterms:description
 	$description = $dom->createElement('dcterms:description');
 	$content->appendChild($description);
@@ -93,9 +107,9 @@
 	$item = $dom->createTextNode($row['rep_startdate']);
 	$created->appendChild($item);
 	//dcterms:spatial
-	$spatial = $dom->createElement('dcterms:spatial');
+	$spatial = $dom->createElement('gn:parentCountry');
 	$content->appendChild($spatial);
-	$item = $dom->createTextNode($row['rep_location']);
+	$item = $dom->createTextNode($row['country_name']);
 	$spatial->appendChild($item);
 	//databib:reusePolicy
 	$reuse = $dom->createElement('databib:reusePolicy');
@@ -112,6 +126,11 @@
 	$content->appendChild($type);
 	$item = $dom->createTextNode($row['rep_type']);
 	$type->appendChild($item);
+	//databib:certification
+	$certification = $dom->createElement('databib:certification');
+	$content->appendChild($certification);
+	$item = $dom->createTextNode($row['rep_certification']);
+	$certification->appendChild($item);
 	//dcterms:subject
 	$subquery = "select * from subjects, subject_record_assoc_approved where subjects.id_subject = subject_record_assoc_approved.id_subject AND subject_record_assoc_approved.id_record = $ID";
 				$subresult = mysql_query($subquery) or die(mysql_error());

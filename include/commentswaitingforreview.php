@@ -20,13 +20,14 @@ for ($i4 = 0, $j4 = $startrow_approved; ($j4 < $startrow_approved + $limit4) && 
 	$newarr4[$i4] = $tmparr4[$j4];
 	$i4++;
 }
-$counter4 = 1;
+//$counter4 = 1;
 foreach($newarr4 as $value4){
 	$query_value4 = "SELECT * FROM comments WHERE id_comment = '".$value4."'";
 	$num_value4 = mysql_query ($query_value4);
 	$num_of_rows4 = mysql_num_rows ($num_value4);
 	if($num_of_rows4 == 0 )
-		echo '<i>None</i>';
+		//echo '<i>None</i>';
+		echo '';
 	else {
 		$row_linkcat4 = mysql_fetch_array ($num_value4);
 		$introcontent4 = strip_tags($row_linkcat4[ 'comment']);

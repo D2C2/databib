@@ -35,19 +35,27 @@ foreach($newarr1 as $value1) {
 		$introcontent1 = substr($introcontent1, 0, 100)."...";
 		$record_id1 = $row_linkcat1[ 'id_rep'];
 		$title1 = $row_linkcat1[ 'rep_title' ];
+		$editors1 = $row_linkcat1[ 'rep_editors' ];
 		$desc1 =   $introcontent1;
 		$link1 = $row_linkcat1[ 'rep_url' ];
+		$submission_date1 = $row_linkcat1['submission_date'];
+		$assignment_date1 = $row_linkcat1['assignment_date'];
+		
 		echo '<br/>';
 		echo '<div>';
 		echo $counter1;
 		echo '.&nbsp;&nbsp;';
 		echo '<a href="viewassignedbyrecordid.php?record='.$record_id1.'" style="color:#993300; font-size:14px">';
 		echo $title1;
-		echo  '</a>';
+		echo  '</a><br/>';
+		echo "<span class=\"tab1\"></span><span style=\"color:gray\">Submitted on $submission_date1</span><br/>";
+		echo "<span class=\"tab1\"></span><span style=\"color:gray\">Assigned on $assignment_date1 to ";
+		echo "<a href=\"viewassignedbyeditor.php?editor=$editors1\" style=\"color:#993300; font-size:14px\"><span style=\"color:black;font-weight:bold;\">$editors1</span></a></span>";
+		
 		echo '</div>';
 		$counter1++;
 	}
-	echo '<br/>';
+	//echo '<br/>';
 
 }
 if($total_num_results1 > $limit1){

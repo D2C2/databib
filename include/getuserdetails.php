@@ -1,6 +1,6 @@
 
 <?php
-include_once('database_connection.php');
+/*include_once('database_connection.php');
 $username = mysql_real_escape_string(@$_REQUEST['userchoice']);
 $sql = "select * from users where username='$username'";
 $result = mysql_query($sql) or die(mysql_error());
@@ -79,7 +79,7 @@ if (!$_POST)
 	$result = mysql_query($sql) or die(mysql_error());
 	echo 'The information was successfully updated';
 }
-
+*/
 ?>
 
 

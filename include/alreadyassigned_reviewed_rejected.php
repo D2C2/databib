@@ -8,7 +8,7 @@ $username2 = $fgmembersite->UserName();
 $startrow_rejected = mysql_real_escape_string(@$_REQUEST['startrow_rejected']);
 if (empty($startrow_rejected))
 $startrow_rejected = 0;
-$query2 = "SELECT * FROM notapproved where assignedtoeditor='y' and reviewed ='y' ORDER BY rep_title ASC";
+$query2 = "SELECT * FROM notapproved where assignedtoeditor='y' and reviewed ='y' ORDER BY submission_date DESC,rep_title ASC";
 $numresults2 = mysql_query ($query2) ;
 $row2 = mysql_fetch_array ($numresults2);
 do{
@@ -39,14 +39,20 @@ foreach($newarr2 as $value2){
 		$title2 = $row_linkcat2[ 'rep_title' ];
 		$desc2 =   $introcontent2;
 		$link2 = $row_linkcat2[ 'rep_url' ];
+		$editors = $row_linkcat2[ 'rep_editors' ];
+		$submission_date = $row_linkcat2['submission_date'];
 
 		echo '<br/>';
 		echo '<div>';
 		echo $counter2;
 		echo '.&nbsp;&nbsp;';
-		echo '<a href="../viewassignedbyrecordid.php?record='.$record_id2.'" style="color:#993300; font-size:14px">';
+		echo '<a href="../viewrejectedbyrecordid.php?record='.$record_id2.'" style="color:#993300; font-size:14px">';
 		echo $title2;
-		echo  '</a>';
+		echo  '</a><br/>';
+		
+		echo "<span class=\"tab1\"></span><span style=\"color:gray\">Reviewed by <span style=\"color:black;font-weight:bold;\">$editors</span> </span> ";
+		echo " <span style=\"color:gray\">$submission_date</span>";
+		
 		echo '</div>';
 		$counter2++;
 	}
